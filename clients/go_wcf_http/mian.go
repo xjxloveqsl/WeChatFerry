@@ -117,6 +117,8 @@ func OnMsg() {
 		message.Content = msg.Content
 		message.Sign = msg.Sign
 		message.WxId = msg.Sender
+		message.Thumb = msg.Thumb
+		message.Extra = msg.Extra
 		message.Xml = msg.Xml
 		if app.WxClient.MessageCallbackUrl != "" {
 			var data = map[string]interface{}{

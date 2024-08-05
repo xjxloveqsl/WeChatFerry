@@ -27,6 +27,8 @@ type Message struct {
 	Content   string `json:"content,omitempty"`
 	WxId      string `json:"wx_id,omitempty"`
 	Sign      string `json:"sign,omitempty"`
+	Thumb     string `json:"thumb,omitempty"`
+	Extra     string `json:"extra,omitempty"`
 	Xml       string `json:"xml,omitempty"`
 }
 
