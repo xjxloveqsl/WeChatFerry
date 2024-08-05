@@ -54,7 +54,8 @@ func httpInit() {
 		c.BindJSON(&requestData)
 		fmt.Println(requestData)
 	})
-
+	// 是否登录成功
+	r.GET("/api/IsLogin", app.IsLogin)
 	// 设置消息回调地址
 	r.POST("/api/SetMessageCallbackUrl", app.SetMessageCallbackUrl)
 	// 获取登录的wx_id

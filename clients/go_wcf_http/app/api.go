@@ -12,6 +12,25 @@ type Result struct {
 	Data    interface{} `json:"data"`
 }
 
+// IsLogin 是否登录成功
+func IsLogin(c *gin.Context) {
+	var result Result
+	wxId := WxClient.IsLogin()
+	if !wxId {
+		result.Code = 0
+		result.Message = "登录失败"
+		var data = map[string]bool{"isLogin": false}
+		result.Data = data
+		c.JSON(http.StatusOK, result)
+		return
+	}
+	result.Code = 1
+	result.Message = "登录成功"
+	var data = map[string]bool{"isLogin": true}
+	result.Data = data
+	c.JSON(http.StatusOK, result)
+}
+
 // SetMessageCallbackUrl 设置消息回调地址
 func SetMessageCallbackUrl(c *gin.Context) {
 	var result Result
