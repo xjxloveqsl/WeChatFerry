@@ -1,9 +1,9 @@
 package app
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 type Result struct {
@@ -95,9 +95,18 @@ func GetRoomMembersAll(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+type RoomMemberList struct {
+	Wxid string `json:"wxid"`
+	Name string `json:"name"`
+}
+
 // GetRoomMember 获取指定群成员
 func GetRoomMember(c *gin.Context) {
 	var result Result
+	var roomId []string
+	var ContactList = make(map[string]string)
+	var ChatRoomList = make(map[string]string)
+	var RoomMemberResult []*RoomMemberList
 	var RequestData struct {
 		RoomId string `json:"room_id"`
 	}
@@ -109,10 +118,35 @@ func GetRoomMember(c *gin.Context) {
 		c.JSON(http.StatusOK, result)
 		return
 	}
-	contacts := WxClient.ExecDBQuery("MicroMsg.db", "SELECT RoomData FROM ChatRoom WHERE ChatRoomName = '"+RequestData.RoomId+"';")
+	contacts := WxClient.ExecDBQuery("MicroMsg.db", "SELECT UserName, NickName FROM Contact;")
 	for _, v := range contacts {
-		fmt.Print(v.GetFields()[0].Content)
+		ContactList[string(v.GetFields()[0].Content)] = string(v.GetFields()[1].Content)
 	}
+	roomMembers := WxClient.ExecDBQuery("MicroMsg.db", "SELECT UserNameList FROM ChatRoom WHERE ChatRoomName = '"+RequestData.RoomId+"';")
+	for _, v := range roomMembers {
+		ChatRoomList["UserNameList"] = string(v.GetFields()[0].Content)
+	}
+	for _, ChatRoomvalue := range ChatRoomList {
+		resultS := strings.Split(ChatRoomvalue, "^G")
+		for _, value := range resultS {
+			roomId = append(roomId, value)
+		}
+	}
+	for _, value := range roomId {
+		for Contactkey, Contactvalue := range ContactList {
+			if value == Contactkey {
+				roomMemberList := &RoomMemberList{
+					Wxid: Contactkey,
+					Name: Contactvalue,
+				}
+				RoomMemberResult = append(RoomMemberResult, roomMemberList)
+			}
+		}
+	}
+	result.Code = 1
+	result.Message = "获取指定群成员成功"
+	result.Data = RoomMemberResult
+	c.JSON(http.StatusOK, result)
 }
 
 // GetDBNames 获取全部的数据库
